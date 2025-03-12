@@ -10,17 +10,18 @@ function App() {
   };
 
   return (
-    <main className="container py-3">
+    <main className="container-fluid bg-success p-5 mt-5">
       <section className="d-flex justify-content-center mb-4">
         <input
           type="text"
-          className="form-control w-50"
+          className="form-control w-50 "
           placeholder="Buscar..."
           value={search}
           onChange={handleSearch}
         />
       </section>
-      <article className="card" style={{ width: '18rem' }}>
+      <div>
+      <article className="card w-25 mt-5">
         <img src="..." className="card-img-top" alt="Imagen de la pelicula" />
         <div className="card-body">
           <h2 className="card-title">Titulo</h2>
@@ -33,6 +34,8 @@ function App() {
           <li className="list-group-item">Fecha</li>
         </ul>
       </article>
+      
+      </div>
     </main>
   );
 }
