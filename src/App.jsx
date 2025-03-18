@@ -1,35 +1,43 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [search, setSearch] = useState('');
+
+  const handleSearch = (event) => {
+    setSearch(event.target.value);
+    console.log("Buscando:", event.target.value);
+  };
 
   return (
-    <>
+    <main className="container-fluid bg-success p-5 mt-5">
+      <section className="d-flex justify-content-center mb-4">
+        <input
+          type="text"
+          className="form-control w-50 "
+          placeholder="Buscar..."
+          value={search}
+          onChange={handleSearch}
+        />
+      </section>
       <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <article className="card w-25 mt-5">
+        <img src="..." className="card-img-top" alt="Imagen de la pelicula" />
+        <div className="card-body">
+          <h2 className="card-title">Titulo</h2>
+          <p className="card-text">Descripcion</p>
+        </div>
+        <ul className="list-group list-group-flush">
+          <li className="list-group-item">Genero</li>
+          <li className="list-group-item">Lenguaje</li>
+          <li className="list-group-item">Votos</li>
+          <li className="list-group-item">Fecha</li>
+        </ul>
+      </article>
+      
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </main>
+  );
 }
 
-export default App
+export default App;
