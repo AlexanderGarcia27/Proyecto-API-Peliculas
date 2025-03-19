@@ -111,7 +111,7 @@ const MoviesList = () => {
      
       {loading && !timeoutError && (
         <div className="d-flex justify-content-center">
-          <div className="spinner-border text-white" role="status">
+          <div className="spinner-border text-info" role="status">
             <span className="visually-hidden">Cargando...</span>
           </div>
         </div>
