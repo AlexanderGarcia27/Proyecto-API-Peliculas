@@ -17,20 +17,28 @@ function App() {
 
   return (
     <main className="container-fluid bg-dark text-white p-5 mt-5">
+      {/* Agregamos estilos en línea para el placeholder */}
+      <style>{`
+        .form-control::placeholder {
+          color: white !important;
+          opacity: 1;
+        }
+      `}</style>
+
       <section className="d-flex justify-content-center mb-4">
-        <div className="input-group w-50">
-          <span className="input-group-text bg-primary text-white border-4 rounded-pill rounded-end px-3">
-            <FaSearch />
-          </span>
+        <div className="position-relative w-50">
           <input
             type="text"
-            className="form-control w-50 border-4 bg-dark shadow-lg p-3 rounded-pill rounded-start-0 text-white"
+            className="form-control border-4 rounded-5 bg-dark shadow-lg p-3 text-white ps-5"
             placeholder="Buscar..."
             value={search}
             onChange={handleSearch}
           />
+          <FaSearch className="position-absolute top-50 start-0 translate-middle-y text-white ms-3" />
         </div>
       </section>
+
+
       <div>
         <article className="card w-25 mt-5 shadow-lg border-0" style={{ backgroundColor: '#f8f9fa' }}>
           <img src="..." className="card-img-top rounded-top" alt="Imagen de la película" />
@@ -58,6 +66,5 @@ function App() {
     </main>
   );
 }
-
 
 export default App;
