@@ -11,12 +11,11 @@ const MoviesList = () => {
   const [genres, setGenres] = useState([]);
   const apiKey = "336b2c58da447567bdceae637d3467b7";
 
-  // URLs de la API
+
   const moviesUrl = `https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&api_key=${apiKey}`;
   const genresUrl = `https://api.themoviedb.org/3/genre/movie/list?language=en-US&api_key=${apiKey}`;
 
   useEffect(() => {
-    // Obtener películas populares
     axios
       .get(moviesUrl)
       .then((response) => setMovies(response.data.results))
@@ -25,24 +24,20 @@ const MoviesList = () => {
         console.error(error);
       });
 
-    // Obtener lista de géneros
     axios
       .get(genresUrl)
       .then((response) => setGenres(response.data.genres))
       .catch((error) => console.error("Error al obtener géneros:", error));
   }, []);
 
-  // Función para manejar la búsqueda
   const handleSearch = (event) => {
     setSearch(event.target.value);
   };
 
-  // Función para alternar la expansión de tarjetas
   const toggleExpand = (id) => {
     setExpanded((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
-  // Función para obtener el nombre de los géneros basado en sus IDs
   const getGenreNames = (genreIds) => {
     return genreIds
       .map((id) => {
@@ -53,37 +48,23 @@ const MoviesList = () => {
       .join(", ");
   };
 
-  // Función para buscar películas por actor
-  const searchMoviesByActor = async (actorName) => {
-    try {
-      const response = await axios.get(
-        `https://api.themoviedb.org/3/search/person?query=${actorName}&api_key=${apiKey}&language=en-US`
-      );
-
-      if (response.data.results.length > 0) {
-        const actorMovies = response.data.results[0].known_for || [];
-        return actorMovies.map((movie) => movie.id);
-      }
-      return [];
-    } catch (error) {
-      console.error("Error al buscar por actor:", error);
-      return [];
-    }
-  };
-
-  // Filtrar películas por título, género o actor
   const filteredMovies = movies.filter((movie) => {
     const lowerCaseSearch = search.toLowerCase();
     
-    // Verificar si coincide el título
     const matchesTitle = movie.title.toLowerCase().includes(lowerCaseSearch);
 
-    // Verificar si coincide con un género
     const movieGenres = getGenreNames(movie.genre_ids).toLowerCase();
     const matchesGenre = movieGenres.includes(lowerCaseSearch);
 
     return matchesTitle || matchesGenre;
   });
+
+  const truncateDescription = (description, length = 150) => {
+    if (description.length > length) {
+      return description.substring(0, length) + "...";
+    }
+    return description;
+  };
 
   return (
     <main className="container-fluid bg-dark text-white p-5 mt-5">
@@ -107,40 +88,62 @@ const MoviesList = () => {
         {filteredMovies.map((movie) => (
           <div className="col-md-4" key={movie.id}>
             <article
-              className="card w-100 mt-5 shadow-lg border-0"
-              style={{ backgroundColor: "#f8f9fa" }}
+              className="card w-100 mt-5 shadow-lg border-0 rounded-4 overflow-hidden"
+              style={{
+                backgroundColor: "#f8f9fa",
+                transition: "transform 0.3s ease, box-shadow 0.3s ease",
+                borderRadius: "12px",
+                backgroundColor: "#333",
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
             >
               <img
                 src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
                 className="card-img-top rounded-top w-50 h-60 mx-auto d-block mt-3"
                 alt={`Imagen de ${movie.title}`}
+                style={{
+                  objectFit: "cover",
+                  borderRadius: "12px",
+                }}
               />
-              <div className="card-body text-center">
-                <h2 className="card-title text-primary">{movie.title}</h2>
-                <p className="card-text text-muted">{movie.overview}</p>
+              <div className="card-body text-center" style={{ backgroundColor: "#343a40" }}>
+                <h2 className="card-title text-warning" style={{ fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif" }}>{movie.title}</h2>
+                <p className="card-text text-light" style={{ fontFamily: "'Arial', sans-serif" }}>
+                  {expanded[movie.id]
+                    ? movie.overview
+                    : truncateDescription(movie.overview)}
+                </p>
               </div>
 
               {expanded[movie.id] && (
-                <ul className="list-group list-group-flush mt-3">
-                  <li className="list-group-item bg-light">
-                    <strong>Género:</strong> {getGenreNames(movie.genre_ids)}
-                  </li>
-                  <li className="list-group-item bg-light">
-                    <strong>Lenguaje:</strong> {movie.original_language}
-                  </li>
-                  <li className="list-group-item bg-light">
-                    <strong>Votos:</strong> {movie.vote_average}
-                  </li>
-                  <li className="list-group-item bg-light">
-                    <strong>Fecha:</strong> {movie.release_date}
-                  </li>
-                </ul>
+                <div className="card-body text-center" style={{ backgroundColor: "#222" }}>
+                  <ul className="list-group list-group-flush mt-3">
+                    <li className="list-group-item bg-dark text-light">
+                      <strong>Género:</strong> {getGenreNames(movie.genre_ids)}
+                    </li>
+                    <li className="list-group-item bg-dark text-light">
+                      <strong>Lenguaje:</strong> {movie.original_language}
+                    </li>
+                    <li className="list-group-item bg-dark text-light">
+                      <strong>Votos:</strong> {movie.vote_average}
+                    </li>
+                    <li className="list-group-item bg-dark text-light">
+                      <strong>Fecha:</strong> {movie.release_date}
+                    </li>
+                  </ul>
+                </div>
               )}
 
-              <div className="card-footer text-center">
+              <div className="card-footer text-center" style={{ backgroundColor: "#343a40", borderRadius: "0 0 12px 12px" }}>
                 <button
-                  className="btn btn-primary w-50"
+                  className="btn btn-danger w-50 rounded-3"
                   onClick={() => toggleExpand(movie.id)}
+                  style={{
+                    transition: "background-color 0.3s ease",
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#e02b2b"}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#dc3545"}
                 >
                   {expanded[movie.id] ? "Ocultar detalles" : "Ver más"}
                 </button>
