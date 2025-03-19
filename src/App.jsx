@@ -16,20 +16,39 @@ const MoviesList = () => {
   const genresUrl = `https://api.themoviedb.org/3/genre/movie/list?language=en-US&api_key=${apiKey}`;
 
   useEffect(() => {
-    // Obtener películas populares
-    axios
-      .get(moviesUrl)
-      .then((response) => setMovies(response.data.results))
-      .catch((error) => {
-        setError("Error al obtener las películas");
-        console.error(error);
-      });
+    const fetchData = async () => {
+      try {
+        const [moviesResponse, genresResponse] = await Promise.all([
+          axios.get(moviesUrl),
+          axios.get(genresUrl),
+        ]);
 
-    // Obtener lista de géneros
-    axios
-      .get(genresUrl)
-      .then((response) => setGenres(response.data.genres))
-      .catch((error) => console.error("Error al obtener géneros:", error));
+        const moviesWithActors = await Promise.all(
+          moviesResponse.data.results.map(async (movie) => {
+            const creditsUrl = `https://api.themoviedb.org/3/movie/${movie.id}/credits?api_key=${apiKey}`;
+            try {
+              const creditsResponse = await axios.get(creditsUrl);
+              const actors = creditsResponse.data.cast
+                .slice(0, 5)
+                .map((actor) => actor.name)
+                .join(", ");
+              return { ...movie, actors };
+            } catch (error) {
+              console.error("Error al obtener actores:", error);
+              return { ...movie, actors: "No disponible" };
+            }
+          })
+        );
+
+        setMovies(moviesWithActors);
+        setGenres(genresResponse.data.genres);
+      } catch (error) {
+        setError("Error al obtener datos");
+        console.error(error);
+      }
+    };
+
+    fetchData();
   }, []);
 
   // Función para manejar la búsqueda
@@ -53,28 +72,10 @@ const MoviesList = () => {
       .join(", ");
   };
 
-  // Función para buscar películas por actor
-  const searchMoviesByActor = async (actorName) => {
-    try {
-      const response = await axios.get(
-        `https://api.themoviedb.org/3/search/person?query=${actorName}&api_key=${apiKey}&language=en-US`
-      );
-
-      if (response.data.results.length > 0) {
-        const actorMovies = response.data.results[0].known_for || [];
-        return actorMovies.map((movie) => movie.id);
-      }
-      return [];
-    } catch (error) {
-      console.error("Error al buscar por actor:", error);
-      return [];
-    }
-  };
-
   // Filtrar películas por título, género o actor
   const filteredMovies = movies.filter((movie) => {
     const lowerCaseSearch = search.toLowerCase();
-    
+
     // Verificar si coincide el título
     const matchesTitle = movie.title.toLowerCase().includes(lowerCaseSearch);
 
@@ -82,7 +83,10 @@ const MoviesList = () => {
     const movieGenres = getGenreNames(movie.genre_ids).toLowerCase();
     const matchesGenre = movieGenres.includes(lowerCaseSearch);
 
-    return matchesTitle || matchesGenre;
+    // Verificar si coincide con un actor
+    const matchesActor = movie.actors.toLowerCase().includes(lowerCaseSearch);
+
+    return matchesTitle || matchesGenre || matchesActor;
   });
 
   return (
@@ -127,6 +131,9 @@ const MoviesList = () => {
                   </li>
                   <li className="list-group-item bg-light">
                     <strong>Lenguaje:</strong> {movie.original_language}
+                  </li>
+                  <li className="list-group-item bg-light">
+                    <strong>Actores:</strong> {movie.actors}
                   </li>
                   <li className="list-group-item bg-light">
                     <strong>Votos:</strong> {movie.vote_average}
