@@ -7,6 +7,7 @@ const MoviesList = () => {
   const [movies, setMovies] = useState([]);
   const [search, setSearch] = useState('');
   const [error, setError] = useState(null);
+  const [expanded, setExpanded] = useState({}); // Estado para controlar qué tarjetas están expandidas
 
   const apiKey = '336b2c58da447567bdceae637d3467b7';
   const url = `https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&api_key=${apiKey}`;
@@ -23,6 +24,10 @@ const MoviesList = () => {
 
   const handleSearch = (event) => {
     setSearch(event.target.value);
+  };
+
+  const toggleExpand = (id) => {
+    setExpanded(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
   const filteredMovies = movies.filter(movie =>
@@ -52,19 +57,28 @@ const MoviesList = () => {
             <article className="card w-100 mt-5 shadow-lg border-0" style={{ backgroundColor: '#f8f9fa' }}>
               <img
                 src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
-                className="card-img-top rounded-top"
+                className="card-img-top rounded-top w-50 h-60 mx-auto d-block mt-3"
                 alt={`Imagen de ${movie.title}`}
               />
               <div className="card-body text-center">
                 <h2 className="card-title text-primary">{movie.title}</h2>
                 <p className="card-text text-muted">{movie.overview}</p>
               </div>
-              <ul className="list-group list-group-flush mt-3">
-                <li className="list-group-item bg-light">Género: {movie.genre_ids.join(', ')}</li>
-                <li className="list-group-item bg-light">Lenguaje: {movie.original_language}</li>
-                <li className="list-group-item bg-light">Votos: {movie.vote_average}</li>
-                <li className="list-group-item bg-light">Fecha: {movie.release_date}</li>
-              </ul>
+
+              {expanded[movie.id] && (
+                <ul className="list-group list-group-flush mt-3">
+                  <li className="list-group-item bg-light">Género: {movie.genre_ids.join(', ')}</li>
+                  <li className="list-group-item bg-light">Lenguaje: {movie.original_language}</li>
+                  <li className="list-group-item bg-light">Votos: {movie.vote_average}</li>
+                  <li className="list-group-item bg-light">Fecha: {movie.release_date}</li>
+                </ul>
+              )}
+
+              <div className="card-footer text-center">
+                <button className="btn btn-primary w-50" onClick={() => toggleExpand(movie.id)}>
+                  {expanded[movie.id] ? 'Ocultar detalles' : 'Ver más'}
+                </button>
+              </div>
             </article>
           </div>
         ))}
@@ -74,9 +88,7 @@ const MoviesList = () => {
 };
 
 const App = () => {
-  return (
-    <MoviesList />
-  );
+  return <MoviesList />;
 };
 
 export default App;
