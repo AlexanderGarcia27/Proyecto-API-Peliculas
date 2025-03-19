@@ -38,7 +38,8 @@ const MoviesList = () => {
 
 
   return (
-    <main className="container-fluid bg-success p-5 mt-5">
+    <main className="container-fluid bg-dark text-white p-5 mt-5">
+      {/* Barra de búsqueda */}
       <section className="d-flex justify-content-center mb-4">
         <input
           type="text"
