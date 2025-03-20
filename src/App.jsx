@@ -16,18 +16,39 @@ const MoviesList = () => {
   const genresUrl = `https://api.themoviedb.org/3/genre/movie/list?language=en-US&api_key=${apiKey}`;
 
   useEffect(() => {
-    axios
-      .get(moviesUrl)
-      .then((response) => setMovies(response.data.results))
-      .catch((error) => {
-        setError("Error al obtener las películas");
-        console.error(error);
-      });
+    const fetchData = async () => {
+      try {
+        const [moviesResponse, genresResponse] = await Promise.all([
+          axios.get(moviesUrl),
+          axios.get(genresUrl),
+        ]);
 
-    axios
-      .get(genresUrl)
-      .then((response) => setGenres(response.data.genres))
-      .catch((error) => console.error("Error al obtener géneros:", error));
+        const moviesWithActors = await Promise.all(
+          moviesResponse.data.results.map(async (movie) => {
+            const creditsUrl = `https://api.themoviedb.org/3/movie/${movie.id}/credits?api_key=${apiKey}`;
+            try {
+              const creditsResponse = await axios.get(creditsUrl);
+              const actors = creditsResponse.data.cast
+                .slice(0, 5)
+                .map((actor) => actor.name)
+                .join(", ");
+              return { ...movie, actors };
+            } catch (error) {
+              console.error("Error al obtener actores:", error);
+              return { ...movie, actors: "No disponible" };
+            }
+          })
+        );
+
+        setMovies(moviesWithActors);
+        setGenres(genresResponse.data.genres);
+      } catch (error) {
+        setError("Error al obtener datos");
+        console.error(error);
+      }
+    };
+
+    fetchData();
   }, []);
 
   const handleSearch = (event) => {
@@ -48,15 +69,20 @@ const MoviesList = () => {
       .join(", ");
   };
 
+  // Filtrar películas por título, género o actor
   const filteredMovies = movies.filter((movie) => {
     const lowerCaseSearch = search.toLowerCase();
-    
+
+    // Verificar si coincide el título
     const matchesTitle = movie.title.toLowerCase().includes(lowerCaseSearch);
 
     const movieGenres = getGenreNames(movie.genre_ids).toLowerCase();
     const matchesGenre = movieGenres.includes(lowerCaseSearch);
 
-    return matchesTitle || matchesGenre;
+    // Verificar si coincide con un actor
+    const matchesActor = movie.actors.toLowerCase().includes(lowerCaseSearch);
+
+    return matchesTitle || matchesGenre || matchesActor;
   });
 
   const truncateDescription = (description, length = 150) => {
@@ -124,6 +150,9 @@ const MoviesList = () => {
                     </li>
                     <li className="list-group-item bg-dark text-light">
                       <strong>Lenguaje:</strong> {movie.original_language}
+                    </li>
+                    <li className="list-group-item bg-dark text-light">
+                      <strong>Actores:</strong> {movie.actors}
                     </li>
                     <li className="list-group-item bg-dark text-light">
                       <strong>Votos:</strong> {movie.vote_average}
