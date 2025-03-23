@@ -13,9 +13,9 @@ const MoviesList = () => {
   const [timeoutError, setTimeoutError] = useState(false); 
   const apiKey = "336b2c58da447567bdceae637d3467b7";
 
- 
-  const moviesUrl = `https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&api_key=${apiKey}`;
-  const genresUrl = `https://api.themoviedb.org/3/genre/movie/list?language=en-US&api_key=${apiKey}`;
+
+  const moviesUrl = `https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=es-ES&page=1&sort_by=popularity.desc&api_key=${apiKey}`;
+  const genresUrl = `https://api.themoviedb.org/3/genre/movie/list?language=es-ES&api_key=${apiKey}`;
 
   useEffect(() => {
     
@@ -26,7 +26,6 @@ const MoviesList = () => {
         setError("Error al obtener las películas");
         console.error(error);
       });
-
     
     axios
       .get(genresUrl)
@@ -36,17 +35,22 @@ const MoviesList = () => {
 
   
   const handleSearch = (event) => {
-    setSearch(event.target.value);
-    setLoading(true); 
-    setTimeoutError(false); 
-
-    
+    const value = event.target.value;
+    if (value.trim().length === 0) {
+      setSearch(""); 
+      return;
+    }
+    setSearch(value);
+    setLoading(true);
+    setTimeoutError(false);
+  
     setTimeout(() => {
       if (loading) {
-        setTimeoutError(true); 
+        setTimeoutError(true);
       }
     }, 9000);
   };
+  
 
   
   const toggleExpand = (id) => {
@@ -94,7 +98,7 @@ const MoviesList = () => {
 
   return (
     <main className="container-fluid bg-dark text-white p-5 mt-5">
-     
+    
       <section className="d-flex justify-content-center mb-4">
         <div className="position-relative w-50">
           <input
@@ -108,7 +112,7 @@ const MoviesList = () => {
         </div>
       </section>
 
-     
+    
       {loading && !timeoutError && (
         <div className="d-flex justify-content-center">
           <div className="spinner-border text-info" role="status">
@@ -117,7 +121,7 @@ const MoviesList = () => {
         </div>
       )}
 
-     
+    
       {timeoutError && !filteredMovies.length && (
         <p className="text-center text-warning">La pelicula no existe o no se encuentra en la lista por el momento :3.</p>
       )}
