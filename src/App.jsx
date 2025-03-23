@@ -13,8 +13,8 @@ const MoviesList = () => {
   const [timeoutError, setTimeoutError] = useState(false);
 
   const apiKey = "336b2c58da447567bdceae637d3467b7";
-  const moviesUrl = `https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=1&sort_by=popularity.desc&api_key=${apiKey}`;
-  const genresUrl = `https://api.themoviedb.org/3/genre/movie/list?language=en-US&api_key=${apiKey}`;
+  const moviesUrl = `https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=es-ES&page=1&sort_by=popularity.desc&api_key=${apiKey}`;
+  const genresUrl = `https://api.themoviedb.org/3/genre/movie/list?language=es-ES&api_key=${apiKey}`;
 
   useEffect(() => {
     const fetchData = async () => {
